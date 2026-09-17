@@ -13,7 +13,6 @@ export type ScreenNode = Node<ScreenNodeData, "screen">;
 
 export type LinkEdge = Edge<{ route: Route | null; isActive: boolean; isDimmed: boolean }, "link">;
 
-/** The selected screen plus every screen it links to or from. */
 export function neighbourhood(flow: Flow, analysis: Analysis, id: string | null): Set<string> | null {
   const screen = flow.screens.find((s) => s.id === id);
   if (!screen) return null;
@@ -24,7 +23,7 @@ export function neighbourhood(flow: Flow, analysis: Analysis, id: string | null)
   ]);
 }
 
-/** Rebuilds nodes from the flow while keeping what React Flow already knows: position and measured size. */
+// keeps position and measured size from the previous nodes
 export function toNodes(
   flow: Flow,
   analysis: Analysis,
@@ -53,12 +52,8 @@ export function toNodes(
 
 const samePlace = (a: XY | undefined, b: XY) => a !== undefined && Math.abs(a.x - b.x) < 0.5 && Math.abs(a.y - b.y) < 0.5;
 
-/**
- * An edge uses its ELK route only while both of its screens sit exactly
- * where that layout put them. Forward links fall back to the side handles,
- * links back to an earlier column to the handles under the card, so a
- * return path loops underneath instead of over the forward one.
- */
+// ELK route is only valid while both cards are where ELK put them.
+// Fallback: back links use the bottom handles so they don't overlap forward ones.
 export function toEdges(flow: Flow, nodes: ScreenNode[], selectedId: string | null, layout: Layout | null): LinkEdge[] {
   const position = new Map(nodes.map((node) => [node.id, node.position]));
 

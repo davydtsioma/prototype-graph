@@ -4,7 +4,6 @@ export const LINK_KINDS = ["navigate", "overlay", "redirect"] as const;
 export type Status = (typeof STATUSES)[number];
 export type LinkKind = (typeof LINK_KINDS)[number];
 
-/** One way to leave a screen: what the person does, and where it takes them. */
 export interface Link {
   to: string;
   on: string;
@@ -17,18 +16,15 @@ export interface Screen {
   status: Status;
   owner?: string;
   notes?: string;
-  /** Deployed prototype page for this screen. */
   preview?: string;
-  /** Where the code for this screen lives. */
   source?: string;
-  /** Marks an intentional end of a flow, so it is not reported as a dead end. */
+  /** intended end of the flow, not a dead end */
   terminal?: boolean;
   links: Link[];
 }
 
 export interface Flow {
   name: string;
-  /** Screens a person can land on directly. Reachability is measured from here. */
   start: string[];
   screens: Screen[];
 }
@@ -47,10 +43,7 @@ const isObject = (value: unknown): value is Json =>
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
-/**
- * Only http(s) links are accepted. Flow files can be loaded from any URL,
- * so a `javascript:` link in a file must never reach an href.
- */
+// files can come from any URL, so no javascript: links
 export function isSafeUrl(value: string): boolean {
   try {
     const { protocol } = new URL(value);
@@ -60,12 +53,7 @@ export function isSafeUrl(value: string): boolean {
   }
 }
 
-/**
- * Checks a flow file and collects every problem instead of stopping at the
- * first, so one round of fixes is enough. Links to unknown screens are not
- * errors here: the graph reports them as issues so a half-finished flow
- * still opens.
- */
+// Collects all errors. Links to missing screens are allowed (shown as issues instead).
 export function parseFlow(input: unknown): ParseResult {
   const errors: string[] = [];
 

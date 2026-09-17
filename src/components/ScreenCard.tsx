@@ -7,9 +7,8 @@ const stop = (event: React.MouseEvent) => event.stopPropagation();
 
 export const ScreenCard = memo(function ScreenCard({ id, data, selected }: NodeProps<ScreenNode>) {
   const { screen, facts, dimmed } = data;
-  // While a link is being dragged from another screen, the whole card accepts the drop.
+  // whole card is a drop target while dragging a link
   const isDropTarget = useConnection((c) => c.inProgress && c.fromNode.id !== id);
-  // Fields can hold half-typed addresses while being edited; only safe ones become links.
   const preview = screen.preview && isSafeUrl(screen.preview) ? screen.preview : null;
   const source = screen.source && isSafeUrl(screen.source) ? screen.source : null;
   const className = [

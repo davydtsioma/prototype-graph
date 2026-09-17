@@ -3,7 +3,6 @@ import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, type EdgeProps } from "
 import type { LinkEdge as LinkEdgeType } from "../flow/graph";
 import type { XY } from "../flow/layout";
 
-/** An orthogonal path through ELK's bend points, with rounded corners. */
 function roundedPath(points: XY[], radius = 8): string {
   let path = `M ${points[0].x} ${points[0].y}`;
   for (let i = 1; i < points.length - 1; i++) {
@@ -25,11 +24,7 @@ function roundedPath(points: XY[], radius = 8): string {
   return `${path} L ${last.x} ${last.y}`;
 }
 
-/**
- * Draws the route ELK computed while both screens are where the layout put
- * them. Once a screen is dragged the route is stale, so the edge falls back
- * to a simple step path between the card handles until the next tidy.
- */
+// No route means a card was dragged since the last layout.
 export const LinkEdge = memo(function LinkEdge(props: EdgeProps<LinkEdgeType>) {
   const { id, data, markerEnd, style, label } = props;
 

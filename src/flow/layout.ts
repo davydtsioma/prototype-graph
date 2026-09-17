@@ -12,12 +12,10 @@ export interface Size {
   height: number;
 }
 
-/** An edge path computed for one exact arrangement of its two screens. */
 export interface Route {
   source: XY;
   target: XY;
   points: XY[];
-  /** Centre of the label, placed by ELK so labels never overlap cards or each other. */
   label?: XY;
 }
 
@@ -28,7 +26,7 @@ export interface Layout {
 
 export const edgeId = (from: string, index: number) => `${from}:${index}`;
 
-// ELK is most of the bundle, so it loads with the first layout instead of with the page.
+// ELK is ~1.4MB, load it lazily
 let elk: Promise<InstanceType<typeof import("elkjs/lib/elk.bundled.js").default>> | null = null;
 const getElk = () =>
   (elk ??= import("elkjs/lib/elk.bundled.js").then(({ default: ELK }) => new ELK()));
@@ -41,12 +39,6 @@ function labelSize(text: string): Size {
   return { width: Math.ceil(width) + 14, height: 20 };
 }
 
-/**
- * Lays the flow out in columns, left to right, in the order a person moves
- * through it, and routes every link around the cards. Start screens are
- * pinned to the first column. Layout is never written to the flow file, so
- * the file only changes when the flow itself changes.
- */
 export async function layoutFlow(flow: Flow, sizes: Map<string, Size>): Promise<Layout> {
   const start = new Set(flow.start);
 

@@ -1,8 +1,5 @@
 import { SCREEN_ID, type Flow, type Link, type Screen } from "./schema";
 
-// Every edit returns a new flow. The file stays the only source of truth:
-// the graph is derived from it and export writes it back unchanged in shape.
-
 type ScreenPatch = Partial<Omit<Screen, "id" | "links">>;
 
 const OPTIONAL = ["owner", "notes", "preview", "source"] as const;
@@ -32,7 +29,6 @@ export function addScreen(flow: Flow, title = "New screen"): { flow: Flow; id: s
     id,
     flow: {
       ...flow,
-      // The first screen of an empty flow is where it starts.
       start: flow.screens.length === 0 ? [id] : flow.start,
       screens: [...flow.screens, screen],
     },
@@ -42,7 +38,7 @@ export function addScreen(flow: Flow, title = "New screen"): { flow: Flow; id: s
 export function updateScreen(flow: Flow, id: string, patch: ScreenPatch): Flow {
   return mapScreen(flow, id, (screen) => {
     const next: Screen = { ...screen, ...patch };
-    // Empty optional fields are dropped so exported files stay clean.
+    // drop empty fields so the exported file stays clean
     for (const key of OPTIONAL) {
       if (!next[key]?.trim()) delete next[key];
     }
@@ -51,7 +47,7 @@ export function updateScreen(flow: Flow, id: string, patch: ScreenPatch): Flow {
   });
 }
 
-/** Renames a screen and rewrites every reference to it. Returns an error message when the id cannot be used. */
+// returns an error string if the id can't be used
 export function renameScreen(flow: Flow, id: string, nextId: string): Flow | string {
   if (nextId === id) return flow;
   if (!SCREEN_ID.test(nextId)) return "Use lowercase letters, digits and dashes.";
@@ -69,7 +65,6 @@ export function renameScreen(flow: Flow, id: string, nextId: string): Flow | str
   };
 }
 
-/** Removes a screen together with every link that pointed at it. */
 export function removeScreen(flow: Flow, id: string): Flow {
   return {
     ...flow,

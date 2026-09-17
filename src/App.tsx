@@ -45,7 +45,7 @@ function Editor() {
   const [dragging, setDragging] = useState(false);
   const [justAdded, setJustAdded] = useState<string | null>(null);
 
-  // Where the next new or renamed screen should appear, before it has a node.
+  // positions for screens that don't have a node yet
   const placement = useRef(new Map<string, { x: number; y: number }>());
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -65,7 +65,7 @@ function Editor() {
     );
   }, [flow, analysis, focus, selectedId, setNodes]);
 
-  // Lay out once every card has been measured, so ELK works with real sizes.
+  // wait for measured sizes before running ELK
   useEffect(() => {
     if (!needsLayout || !nodesInitialized || nodes.length !== flow.screens.length) return;
     let cancelled = false;
@@ -163,7 +163,6 @@ function Editor() {
   const onAddScreen = () => {
     const { flow: next, id } = addScreen(flow);
     const centre = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-    // Step down from the centre of the view until the new card overlaps nothing.
     const width = 260;
     const height = 110;
     const spot = { x: centre.x - width / 2, y: centre.y - height / 2 };

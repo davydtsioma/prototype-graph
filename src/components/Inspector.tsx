@@ -17,7 +17,6 @@ interface Props {
   onChange: (flow: Flow) => void;
   onRename: (from: string, to: string, flow: Flow) => void;
   onSelect: (id: string | null) => void;
-  /** A screen that was just added opens with its title selected, ready to be named. */
   isNew?: boolean;
 }
 

@@ -8,9 +8,7 @@ export interface Incoming {
 
 export interface ScreenFacts {
   isStart: boolean;
-  /** No start screen leads here. */
   isUnreachable: boolean;
-  /** Nothing leads out, and the screen is not marked as an intended end. */
   isDeadEnd: boolean;
   incoming: Incoming[];
 }
@@ -28,7 +26,6 @@ export interface Analysis {
   issues: Issue[];
 }
 
-/** A link is drawn only when it points at another screen that exists. */
 export const isDrawable = (flow: Flow, from: string, link: Link) =>
   link.to !== from && flow.screens.some((s) => s.id === link.to);
 
@@ -62,7 +59,6 @@ export function analyzeFlow(flow: Flow): Analysis {
     issues.push({ kind: "no-start", message: "No start screen, so nothing is reachable." });
   }
 
-  // Breadth-first walk from every start screen.
   const reached = new Set(start);
   const queue = [...start];
   while (queue.length > 0) {
