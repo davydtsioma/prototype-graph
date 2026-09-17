@@ -24,6 +24,14 @@ import { layoutFlow, type Layout } from "./flow/layout";
 import { parseFlow, type Flow } from "./flow/schema";
 
 const nodeTypes = { screen: ScreenCard };
+
+// ?embed: running inside another page (a portfolio hero). The wheel scrolls
+// that page instead of zooming, and file actions are hidden.
+const params = new URLSearchParams(window.location.search);
+const embed = params.has("embed");
+
+type Theme = "light" | "dark" | "system";
+const initialTheme = (["light", "dark"].includes(params.get("theme") ?? "") ? params.get("theme") : "system") as Theme;
 const edgeTypes = { link: LinkEdge };
 
 function loadSample(): Flow {
@@ -44,6 +52,23 @@ function Editor() {
   const [issuesOpen, setIssuesOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [theme, setTheme] = useState<Theme>(initialTheme);
+
+  // the embedding page can switch light and dark: postMessage({ theme: "dark" })
+  useEffect(() => {
+    if (theme === "system") delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = theme;
+  }, [theme]);
+  useEffect(() => {
+    if (!embed) return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const next = event.data?.theme;
+      if (next === "light" || next === "dark" || next === "system") setTheme(next);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   // positions for screens that don't have a node yet
   const placement = useRef(new Map<string, { x: number; y: number }>());
@@ -256,12 +281,16 @@ function Editor() {
           <button type="button" className="button" onClick={() => setNeedsLayout(true)}>
             Tidy layout
           </button>
-          <button type="button" className="button" onClick={() => fileInput.current?.click()}>
-            Open…
-          </button>
-          <button type="button" className="button is-primary" onClick={onExport}>
-            Export
-          </button>
+          {!embed && (
+            <>
+              <button type="button" className="button" onClick={() => fileInput.current?.click()}>
+                Open…
+              </button>
+              <button type="button" className="button is-primary" onClick={onExport}>
+                Export
+              </button>
+            </>
+          )}
           <input
             ref={fileInput}
             type="file"
@@ -287,13 +316,15 @@ function Editor() {
           onPaneClick={() => setSelectedId(null)}
           deleteKeyCode={null}
           elementsSelectable={false}
-          colorMode="system"
+          colorMode={theme}
+          zoomOnScroll={!embed}
+          preventScrolling={!embed}
           minZoom={0.2}
           proOptions={{ hideAttribution: true }}
         >
           <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
           <Controls showInteractive={false} />
-          <MiniMap pannable zoomable className="minimap" />
+          {!embed && <MiniMap pannable zoomable className="minimap" />}
           <div className="legend" aria-label="Legend">
             <span className="legend-item kind-navigate">navigate</span>
             <span className="legend-item kind-overlay">overlay</span>
