@@ -1,0 +1,97 @@
+{
+  "name": "Stay booking",
+  "start": ["search"],
+  "screens": [
+    {
+      "id": "search",
+      "title": "Search",
+      "status": "ready",
+      "owner": "Design",
+      "notes": "Destination, dates and guests.",
+      "links": [
+        { "to": "results", "on": "Submits a search", "kind": "navigate" },
+        { "to": "sign-in", "on": "Opens account", "kind": "overlay" }
+      ]
+    },
+    {
+      "id": "results",
+      "title": "Results",
+      "status": "ready",
+      "owner": "Design",
+      "notes": "List and map of matching stays.",
+      "links": [
+        { "to": "filters", "on": "Opens filters", "kind": "overlay" },
+        { "to": "listing", "on": "Picks a stay", "kind": "navigate" },
+        { "to": "search", "on": "Edits the search", "kind": "navigate" }
+      ]
+    },
+    {
+      "id": "filters",
+      "title": "Filters",
+      "status": "review",
+      "owner": "Design",
+      "notes": "Price, type and amenities in a sheet.",
+      "links": [{ "to": "results", "on": "Applies filters", "kind": "navigate" }]
+    },
+    {
+      "id": "listing",
+      "title": "Listing",
+      "status": "review",
+      "owner": "Design",
+      "notes": "Photos, host, reviews and price breakdown.",
+      "links": [
+        { "to": "gallery", "on": "Taps a photo", "kind": "overlay" },
+        { "to": "host", "on": "Opens the host profile", "kind": "navigate" },
+        { "to": "checkout", "on": "Reserves", "kind": "navigate" }
+      ]
+    },
+    {
+      "id": "gallery",
+      "title": "Photo gallery",
+      "status": "draft",
+      "owner": "Design",
+      "links": [{ "to": "listing", "on": "Closes the gallery", "kind": "navigate" }]
+    },
+    {
+      "id": "host",
+      "title": "Host profile",
+      "status": "idea",
+      "notes": "Not linked back yet.",
+      "links": []
+    },
+    {
+      "id": "checkout",
+      "title": "Checkout",
+      "status": "draft",
+      "owner": "Engineering",
+      "notes": "Guest details and payment.",
+      "links": [
+        { "to": "sign-in", "on": "Not signed in", "kind": "redirect" },
+        { "to": "confirmation", "on": "Pays", "kind": "navigate" }
+      ]
+    },
+    {
+      "id": "sign-in",
+      "title": "Sign in",
+      "status": "ready",
+      "owner": "Engineering",
+      "links": [{ "to": "checkout", "on": "Signs in", "kind": "navigate" }]
+    },
+    {
+      "id": "confirmation",
+      "title": "Confirmation",
+      "status": "draft",
+      "owner": "Design",
+      "notes": "Booking summary and next steps.",
+      "terminal": true,
+      "links": []
+    },
+    {
+      "id": "saved",
+      "title": "Saved stays",
+      "status": "idea",
+      "notes": "Designed, but no screen links here yet.",
+      "links": [{ "to": "listing", "on": "Opens a saved stay", "kind": "navigate" }]
+    }
+  ]
+}
