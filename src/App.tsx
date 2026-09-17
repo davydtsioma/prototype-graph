@@ -54,6 +54,13 @@ function Editor() {
   const [justAdded, setJustAdded] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>(initialTheme);
 
+
+  // positions for screens that don't have a node yet
+  const placement = useRef(new Map<string, { x: number; y: number }>());
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  const { fitView, screenToFlowPosition } = useReactFlow();
+
   // the embedding page can switch light and dark: postMessage({ theme: "dark" })
   useEffect(() => {
     if (theme === "system") delete document.documentElement.dataset.theme;
@@ -65,16 +72,23 @@ function Editor() {
       if (event.origin !== window.location.origin) return;
       const next = event.data?.theme;
       if (next === "light" || next === "dark" || next === "system") setTheme(next);
+      if (event.data?.fit) fitView({ padding: 0.12 });
+    };
+    // an embedded frame can change size after the first fit (the host page
+    // settling its layout), so the flow is fitted again whenever it does
+    let timer = 0;
+    const onResize = () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(() => fitView({ padding: 0.12 }), 120);
     };
     window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, []);
-
-  // positions for screens that don't have a node yet
-  const placement = useRef(new Map<string, { x: number; y: number }>());
-  const fileInput = useRef<HTMLInputElement>(null);
-
-  const { fitView, screenToFlowPosition } = useReactFlow();
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      window.removeEventListener("resize", onResize);
+      clearTimeout(timer);
+    };
+  }, [fitView]);
   const nodesInitialized = useNodesInitialized();
 
   const analysis = useMemo(() => analyzeFlow(flow), [flow]);
